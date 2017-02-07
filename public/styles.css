@@ -1,0 +1,13 @@
+#gameboard,
+.moves {
+  display: inline-block;
+}
+.moves {
+  vertical-align: top;
+  width: 100px;
+  padding: 0px 25px;
+}
+.moves ul {
+  list-style-type: none;
+  padding: 0px;
+}
