@@ -1,14 +1,42 @@
 const socket = io()
+let color = null
 
 function initGame() {
   const config = {
     draggable:  true,
     position: 'start',
-    onDrop
+    onDrop,
+    onSnapEnd
   }
 
   board = new ChessBoard('gameboard', config)
   game = new Chess()
+  color = 'w'
+
+  socket.emit('new_game')
+}
+
+function joinGame(whiteId) {
+  const config = {
+    draggable:  true,
+    position: 'start',
+    orientation: 'black',
+    onDrop,
+    onSnapEnd
+  }
+
+  board = new ChessBoard('gameboard', config)
+  game = new Chess()
+  color = 'b'
+
+  socket.emit('join_game', whiteId)
+}
+
+function leaveGame() {
+  socket.emit('leave_game')
+
+  board = null
+  game = null
 }
 
 function onDrop(source, target) {
@@ -17,12 +45,25 @@ function onDrop(source, target) {
     to: target
   })
 
-  if (move === null) {
+  if (move === null || !color || color !== move.color) {
     return 'snapback'
   }
 
   updateMovesList(move)
   socket.emit('move', move)
+}
+
+// update board position after piece snap
+// for castling, en passant, and pawn promotion
+function onSnapEnd() {
+  board.position(game.fen())
+}
+
+function updateMovesList(move) {
+  let color = move.color === 'w' ? 'white' : 'black'
+  const listItem = `<li>${move.piece} from ${move.from} to ${move.to}</li>`
+
+  $(`#${color}-moves ul`).append(listItem)
 }
 
 socket.on('move', function(move) {
@@ -34,16 +75,29 @@ socket.on('move', function(move) {
   }, 1000)
 })
 
-function updateMovesList(move) {
-  let color = move.color === 'w' ? 'white' : 'black'
-  const listItem = `<li>${move.piece} from ${move.from} to ${move.to}</li>`
+socket.on('games', function(games) {
+  $('#games').html('')
+  for (let i = 0; i < games.length; i++) {
+    const game = $(`<div>${games[i].white}, ${games[i].black}</div>`)
+    game.click(() => {
+      joinGame(games[i].white)
+    })
+    $('#games').append(game)
+  }
+})
 
-  $(`#${color}-moves ul`).append(listItem)
-}
+socket.on('game_started', function() {
+  gameStarted = true
+})
 
-// update board position after piece snap
-// for castling, en passant, and pawn promotion
-function onSnapEnd() {
-  board.position(game.fen())
-  console.log(game.fen())
-}
+$(document).ready(() => {
+  $('#start-game-btn').click(() => {
+    let playerName = $('#player-name').val()
+    if (!playerName) { return }
+    initGame(playerName)
+  })
+
+  $('#leave-game-btn').click(() => {
+    leaveGame()
+  })
+})
