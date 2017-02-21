@@ -1,3 +1,6 @@
+#game {
+  display: none;
+}
 #gameboard,
 .moves {
   display: inline-block;

@@ -14,6 +14,7 @@ function initGame() {
   color = 'w'
 
   socket.emit('new_game')
+  renderGame()
 }
 
 function joinGame(whiteId) {
@@ -30,6 +31,7 @@ function joinGame(whiteId) {
   color = 'b'
 
   socket.emit('join_game', whiteId)
+  renderGame()
 }
 
 function leaveGame() {
@@ -65,7 +67,6 @@ function updateMovesList(move) {
 
 function clearGame() {
   $('#gameboard').html('')
-
   board = null
   game = null
   color = null
@@ -76,13 +77,22 @@ function clearMovesList() {
   $('#black-moves ul').html('')
 }
 
-socket.on('move', function(move) {
-  game.move(move)
-  updateMovesList(move)
+function renderGame() {
+  $('#game').css('display', 'block')
+  $('#lobby').css('display', 'none')
+}
 
+function renderLobby() {
+  $('#game').css('display', 'none')
+  $('#lobby').css('display', 'block')
+}
+
+socket.on('move', function(move) {
   setTimeout(function() {
+    game.move(move)
+    updateMovesList(move)
     board.position(game.fen())
-  }, 1000)
+  }, 3000)
 })
 
 socket.on('games', function(games) {
@@ -99,13 +109,12 @@ socket.on('games', function(games) {
 socket.on('clear_game', function() {
   clearGame()
   clearMovesList()
+  renderLobby()
 })
 
 $(document).ready(() => {
   $('#start-game-btn').click(() => {
-    let playerName = $('#player-name').val()
-    if (!playerName) { return }
-    initGame(playerName)
+    initGame()
   })
 
   $('#leave-game-btn').click(() => {

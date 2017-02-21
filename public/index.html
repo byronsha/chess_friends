@@ -13,23 +13,25 @@
     <script src="/public/index.js" type="text/javascript"></script>
   </head>
   <body>
-    <div id="gameboard" style="width: 400px;"></div>
-   
-    <div id="white-moves" class="moves">
-      <h3>White</h3>
-      <ul></ul>
-    </div>
+    <div id="game">
+      <div id="gameboard" style="width: 600px;"></div>
+      <button id="leave-game-btn">Forfeit and leave game</button>
+    
+      <div id="white-moves" class="moves">
+        <h3>White</h3>
+        <ul></ul>
+      </div>
 
-    <div id="black-moves" class="moves">
-      <h3>Black</h3>
-      <ul></ul>
+      <div id="black-moves" class="moves">
+        <h3>Black</h3>
+        <ul></ul>
+      </div>
     </div>
    
-   <input id="player-name" />
-   <button id="start-game-btn">Start new game</button>
-   <button id="leave-game-btn">Leave game</button>
-
-   <h3>Games</h3>
-   <div id="games"></div>
+    <div id="lobby">
+      <button id="start-game-btn">Start a new game</button>
+      <h3>Games</h3>
+      <div id="games"></div>
+    </div>
   </body>
 </html>
