@@ -16,51 +16,13 @@ io.on('connection', function(socket) {
       return game.white === socket.id || game.black === socket.id
     })
   }
-  
-  function refreshGames(games) {
+
+  function refreshGames() {
     socket.emit('games', games)
     socket.broadcast.emit('games', games)
   }
 
-  socket.on('new_game', function(params) {
-    const newGame = {
-      white: socket.id,
-      black: null
-    }
-
-    games.push(newGame)
-    socket.emit('games', games)
-    socket.broadcast.emit('games', games)
-  })
-
-  socket.on('join_game', function(whiteId) {
-    const foundGame = games.find((game) => {
-      return game.white === whiteId
-    })
-    foundGame.black = socket.id
-    refreshGames(games)
-  })
-
-  socket.on('move', function(move) {
-    const foundGame = findGameByPlayer(socket.id)
-    const opponentId = move.color === 'w' ? foundGame.black : foundGame.white
-    io.to(opponentId).emit('move', move)
-  })
-
-  socket.on('leave_game', function() {
-    const foundGame = findGameByPlayer(socket.id)
-    
-    io.to(foundGame.white).emit('clear_game')
-    io.to(foundGame.black).emit('clear_game')
-
-    games = games.filter((game) => {
-      return game.white !== socket.id && game.black !== socket.id
-    })
-
-    refreshGames(games)
-  })
-
-  socket.on('disconnect', function() {
+  function clearGame(socketid) {
     const foundGame = findGameByPlayer(socket.id)
     
     if (foundGame) {
@@ -71,8 +33,40 @@ io.on('connection', function(socket) {
     games = games.filter((game) => {
       return game.white !== socket.id && game.black !== socket.id
     })
+  }
 
-    refreshGames(games)
+  socket.on('new_game', function(params) {
+    const newGame = {
+      white: socket.id,
+      black: null
+    }
+
+    games.push(newGame)
+    refreshGames()
+  })
+
+  socket.on('join_game', function(whiteId) {
+    const foundGame = games.find((game) => {
+      return game.white === whiteId
+    })
+    foundGame.black = socket.id
+    refreshGames()
+  })
+
+  socket.on('move', function(move) {
+    const foundGame = findGameByPlayer(socket.id)
+    const opponentId = move.color === 'w' ? foundGame.black : foundGame.white
+    io.to(opponentId).emit('move', move)
+  })
+
+  socket.on('leave_game', function() {
+    clearGame(socket.id)
+    refreshGames()
+  })
+
+  socket.on('disconnect', function() {
+    clearGame(socket.id)
+    refreshGames()
   });
 
   socket.emit('games', games)
