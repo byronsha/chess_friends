@@ -34,9 +34,6 @@ function joinGame(whiteId) {
 
 function leaveGame() {
   socket.emit('leave_game')
-
-  board = null
-  game = null
 }
 
 function onDrop(source, target) {
@@ -66,6 +63,19 @@ function updateMovesList(move) {
   $(`#${color}-moves ul`).append(listItem)
 }
 
+function clearGame() {
+  $('#gameboard').html('')
+
+  board = null
+  game = null
+  color = null
+}
+
+function clearMovesList() {
+  $('#white-moves ul').html('')
+  $('#black-moves ul').html('')
+}
+
 socket.on('move', function(move) {
   game.move(move)
   updateMovesList(move)
@@ -86,8 +96,9 @@ socket.on('games', function(games) {
   }
 })
 
-socket.on('game_started', function() {
-  gameStarted = true
+socket.on('clear_game', function() {
+  clearGame()
+  clearMovesList()
 })
 
 $(document).ready(() => {

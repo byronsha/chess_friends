@@ -42,8 +42,15 @@ io.on('connection', function(socket) {
   })
 
   socket.on('leave_game', function() {
-    games = games.filter((game) => {
+    const foundGame = games.find((game) => {
       return game.white === socket.id || game.black === socket.id
+    })
+    
+    io.to(foundGame.white).emit('clear_game')
+    io.to(foundGame.black).emit('clear_game')
+
+    games = games.filter((game) => {
+      return game.white !== socket.id && game.black !== socket.id
     })
 
     socket.emit('games', games)
