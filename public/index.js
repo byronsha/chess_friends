@@ -60,9 +60,14 @@ function onSnapEnd() {
 
 function updateMovesList(move) {
   let color = move.color === 'w' ? 'white' : 'black'
+  let oppositeColor = color === 'white' ? 'black' : 'white'
   const listItem = `<li>${move.piece} from ${move.from} to ${move.to}</li>`
 
   $(`#${color}-moves ul`).append(listItem)
+
+  $(`.moves`).removeClass('active')
+  $(`.moves`).removeClass('active')
+  $(`#${oppositeColor}-moves`).addClass('active')
 }
 
 function clearGame() {
@@ -88,11 +93,12 @@ function renderLobby() {
 }
 
 socket.on('move', function(move) {
+  game.move(move)
+  updateMovesList(move)
+
   setTimeout(function() {
-    game.move(move)
-    updateMovesList(move)
     board.position(game.fen())
-  }, 3000)
+  }, 1000)
 })
 
 socket.on('games', function(games) {

@@ -24,3 +24,6 @@
 #leave-game-btn {
   vertical-align: top;
 }
+.moves.active {
+  color: darkblue;
+}

@@ -10,30 +10,6 @@ let games = []
 
 io.on('connection', function(socket) {
   console.log('Player joined the lobby')
-  
-  function findGameByPlayer(socketid) {
-    return games.find((game) => {
-      return game.white === socket.id || game.black === socket.id
-    })
-  }
-
-  function refreshGames() {
-    socket.emit('games', games)
-    socket.broadcast.emit('games', games)
-  }
-
-  function clearGame(socketid) {
-    const foundGame = findGameByPlayer(socket.id)
-    
-    if (foundGame) {
-      io.to(foundGame.white).emit('clear_game')
-      io.to(foundGame.black).emit('clear_game')
-    }
-
-    games = games.filter((game) => {
-      return game.white !== socket.id && game.black !== socket.id
-    })
-  }
 
   socket.on('new_game', function(params) {
     const newGame = {
@@ -70,6 +46,31 @@ io.on('connection', function(socket) {
   });
 
   socket.emit('games', games)
+
+  // helper functions
+  function findGameByPlayer(socketid) {
+    return games.find((game) => {
+      return game.white === socket.id || game.black === socket.id
+    })
+  }
+
+  function refreshGames() {
+    socket.emit('games', games)
+    socket.broadcast.emit('games', games)
+  }
+
+  function clearGame(socketid) {
+    const foundGame = findGameByPlayer(socket.id)
+    
+    if (foundGame) {
+      io.to(foundGame.white).emit('clear_game')
+      io.to(foundGame.black).emit('clear_game')
+    }
+
+    games = games.filter((game) => {
+      return game.white !== socket.id && game.black !== socket.id
+    })
+  }
 })
 
 app.use(express.static(__dirname))
